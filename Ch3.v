@@ -2,7 +2,6 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 From Coq Require Import ssreflect.
-Close Scope boolean_if_scope.
 
 Module Bool.
 
@@ -12,8 +11,7 @@ Module Bool.
   | ifelse : term -> term -> term -> term.
 
   (* lets introduce a notation for expressiveness *)
-  Notation "'if' c 'then' t1 'else' t2" :=
-    (ifelse c t1 t2) (at level 200, c, t1, t2 at level 200).
+  Notation "'if' c 'then' t1 'else' t2" := (ifelse c t1 t2).
 
   (* evaluation relation on terms *)
   Reserved Notation "t ==> t'" (at level 50).
@@ -21,8 +19,15 @@ Module Bool.
   Inductive eval_step : term -> term -> Prop :=
   | E_IfTrue : forall t2 t3, (if true then t2 else t3) ==> t2
   | E_IfFalse : forall t2 t3, (if false then t2 else t3) ==> t3
-  | E_If : forall t1 t1' t2 t3, t1 ==> t1' -> (if t1 then t2 else t3) ==> (if t1' then t2 else t3)
+  | E_If : forall t1 t1' t2 t3,
+      t1 ==> t1' -> (if t1 then t2 else t3) ==> (if t1' then t2 else t3)
   where "t ==> t'" := (eval_step t t').
+
+  Example ex_inst_e_iftrue :
+    (if true then true else (if false then false else false)) ==> true.
+  Proof.
+    apply E_IfTrue.
+  Qed.
 
   Definition s := if true then false else false.
   Definition t := if s then true else true.
@@ -35,6 +40,13 @@ Module Bool.
     apply E_If.
     apply E_IfTrue.
   Qed.
+
+  Theorem one_step_eval_is_det :
+    forall t t' t'' : term,
+      (t ==> t') /\ (t ==> t'') -> t' = t''.
+    Proof.
+      move => t t' t'' H.
+    Abort.
 
 End Bool.
 
