@@ -3,7 +3,7 @@ Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 From Coq Require Import ssreflect.
 
-Module Bool.
+Module Ch3.
 
   Inductive term : Type :=
   | T_true
@@ -39,7 +39,6 @@ Module Bool.
   | E_IfFalse : forall t1 t2, [ if false then t1 else t2 ] ==> t2
   | E_If : forall c c' t1 t2, c ==> c' -> [ if c then t1 else t2] ==> [ if c' then t1 else t2 ]
   where "e ==> e'" := (eval_step e e').
-
 
   Theorem ex_inst_e_iftrue :
     [ if true then true else (if false then false else false) ] ==> [ true ].
@@ -96,7 +95,8 @@ Module Bool.
   Theorem one_step_is_det t t' t'':
     t ==>> t' /\ t ==>> t'' -> t' = t''.
   Proof.
-    move=> [] H1 H2.
+    case.
+    move=> H1 H2.
     rewrite -H1 -H2.
     done.
 
@@ -106,17 +106,36 @@ Module Bool.
     by move=> [] ->.
   Qed.
 
-End Bool.
+  Definition nf t := t ==>> t.
 
-Module Arith.
+  Notation "| t |" := (nf t) (at level 200).
 
-  Inductive term : Type :=
-  | term_true
-  | term_false
-  | term_cond (cond t1 t2 : term)
-  | term_zero
-  | term_succ (n : term)
-  | term_pred (n : term)
-  | term_iszero (n : term).
+  (* Theorem 3.5.7:
+     Every value is in normal form. *)
 
-End Arith.
+  Theorem vnf : |[[ true ]]| /\ |[[ false ]]|.
+  Proof. by []. Qed.
+
+  (* Theorem 3.5.8:
+     If [t] is in normal form, then [t] is a value. *)
+
+  Lemma nf_implies_not_cond v : forall c t1 t2,
+    |v| -> v <> [[ if c then t1 else t2 ]].
+  Proof.
+    elim: v=> //= v H1 t H2 t' H3 cond' t1 t2 H.
+  Abort.
+
+  Theorem nf_implies_v v :
+    nf v -> v = [[ true ]] \/ v = [[ false ]].
+  Proof.
+    case: v=> t.
+    - by left.
+    - by right.
+    - move=> t1 t2.
+      rewrite /nf.
+  Abort.
+
+  (* Тут могут пригодиться леммы типа такой --
+     Lemma foo c t1 t2 : t1 <> T_cond c t1 t2. *)
+
+End Ch3.
