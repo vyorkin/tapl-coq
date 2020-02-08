@@ -1,6 +1,5 @@
 Set Implicit Arguments.
-Unset Strict Implicit.
-Unset Printing Implicit Defensive.
+
 From Coq Require Import ssreflect.
 
 Module Ch4.
@@ -72,5 +71,18 @@ Module Ch4.
     | _ =>
       None
     end.
+
+  Fixpoint eval t :=
+    (fix eval' t' i :=
+       if i is S i' then
+         if eval1 t' is Some t''
+         then eval' t'' i'
+         else t'
+       else
+         t'
+    ) t 100.
+
+  Compute eval (T_pred (T_pred (T_succ (T_succ (T_succ T_zero))))).
+  Compute eval (T_cond T_true ((T_pred (T_succ T_zero))) (T_succ (T_succ (T_zero)))).
 
 End Ch4.
