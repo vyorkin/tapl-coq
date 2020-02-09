@@ -1,0 +1,9 @@
+-- restriction:
+--   this file has to be inside import/ directory
+--   within the pLam project directory
+-- usage:
+--   :import Ch5.plam
+
+pair = \f s b. b f s
+fst = \p. p T
+snd = \p. p F
